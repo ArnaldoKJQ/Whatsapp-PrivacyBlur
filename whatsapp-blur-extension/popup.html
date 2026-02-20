@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Blur</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --border: #2a2a2a;
+      --accent: #25d366;
+      --text: #f0f0f0;
+      --text-dim: #888;
+    }
+
+    body {
+      width: 280px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .header-text p {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      margin-top: 1px;
+    }
+
+    .main-toggle {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .main-toggle:hover { background: var(--surface); }
+
+    .main-toggle-label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .main-toggle-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      top: 3px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    input:checked + .toggle-slider { background: var(--accent); }
+    input:checked + .toggle-slider::before {
+      transform: translateX(18px);
+      background: #fff;
+    }
+
+    .section {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 10px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+
+    .option-label {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .option-label small {
+      display: block;
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      margin-top: 1px;
+    }
+
+    .blur-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .blur-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      min-width: 30px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 130px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .footer {
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-dim);
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .shortcut-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      display: inline-block;
+      margin-right: 5px;
+      transition: background 0.2s;
+    }
+
+    .status-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2C7.373 2 2 7.149 2 13.5c0 2.124.592 4.112 1.623 5.808L2 26l6.87-1.596A12.1 12.1 0 0 0 14 25C20.627 25 26 19.851 26 13.5S20.627 2 14 2z" fill="#25d366"/>
+      <rect x="10.5" y="13" width="7" height="5.5" rx="1" fill="white"/>
+      <path d="M11.5 13v-2a2.5 2.5 0 0 1 5 0v2" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <circle cx="14" cy="15.5" r="0.9" fill="#25d366"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>WhatsApp Blur</h1>
+    <p>privacy shield</p>
+  </div>
+</div>
+
+<div class="main-toggle" id="mainToggleArea">
+  <div>
+    <div class="main-toggle-label">
+      <span class="status-dot" id="statusDot"></span>
+      Blur Messages
+    </div>
+    <div class="main-toggle-sub">hides conversation content</div>
+  </div>
+  <label class="toggle" onclick="event.stopPropagation()">
+    <input type="checkbox" id="mainToggle">
+    <span class="toggle-slider"></span>
+  </label>
+</div>
+
+<div class="section">
+  <div class="section-title">Blur Intensity</div>
+  <div class="blur-slider-wrap">
+    <input type="range" id="blurRange" min="2" max="20" value="2">
+    <span class="blur-value" id="blurVal">2px</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Options</div>
+  <div class="option-row">
+    <span class="option-label">Reveal on hover</span>
+    <label class="toggle">
+      <input type="checkbox" id="hoverReveal">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="option-row">
+    <span class="option-label">Blur chat list</span>
+    <label class="toggle">
+      <input type="checkbox" id="blurSidebar">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="option-row">
+    <span class="option-label">Blur contact name</span>
+    <label class="toggle">
+      <input type="checkbox" id="blurHeader">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="option-row">
+    <span class="option-label">Blur profile photos</span>
+    <label class="toggle">
+      <input type="checkbox" id="blurAvatars">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="option-row">
+    <span class="option-label">
+      Blur notifications
+      <small>hides message in OS alerts</small>
+    </span>
+    <label class="toggle">
+      <input type="checkbox" id="blurNotifications">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Shortcut</span>
+  <span class="shortcut-badge">Alt + B</span>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
