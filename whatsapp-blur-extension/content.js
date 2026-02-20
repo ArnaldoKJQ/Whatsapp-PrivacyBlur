@@ -4,7 +4,7 @@ const STORAGE_KEY = 'wa_blur_settings';
 
 const defaults = {
   enabled: false,
-  blurAmount: 2,
+  blurAmount: 3,
   hoverReveal: true,
   blurSidebar: false,
   blurHeader: false,
